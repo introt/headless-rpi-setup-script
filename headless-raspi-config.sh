@@ -50,7 +50,7 @@ KEY_PASSPHRASE=''
 COMMENT="$(whoami)@$(hostname)"
 KEY_FILE="$HOME/.ssh/hrpi_rsa" # private key is generated, not used here; ".pub" is appended later
 
-function execute_these_steps () {
+function execute_these_steps {
 	# STEPS - comment out any unneeded ones
 	#
 	# You can also comment out the last line of this file
@@ -61,6 +61,8 @@ function execute_these_steps () {
 	# as any functions you want to add/override with your
 	# own into a file. I use this to keep my password out
 	# of my git repo.
+
+	# See "conf-example" for an example configuration file
 	CONFIG_FILE="$HOME/.config/raspi"
 	if [ -f "$CONFIG_FILE" ]; then
 		echo "[] Sourcing variables from $CONFIG_FILE"
@@ -78,10 +80,9 @@ function execute_these_steps () {
 	generate_keys # you can skip this- just remember to point KEY_FILE to your existing key
 	backup_default_sshd_config
 	disable_passwd_auth
-	# doesn't work unless backup_default_sshd_config is ran; "|| true" makes set -e not trip
-	diff "$MOUNT/rootfs/etc/ssh/sshd_config" "$MOUNT/rootfs/etc/ssh/sshd_config.old" || true
 	authorize_key
 	add_rootkit || true # this is a nominal joke (pun intended); the function is sourced from $CONFIG_FILE
+	diff_sshd_config
 	umount_disk
 	clean_up
 
@@ -183,6 +184,12 @@ function backup_default_sshd_config {
 	"$PRIV" cp -v "$MOUNT"/rootfs/etc/ssh/sshd_config "$MOUNT"/rootfs/etc/ssh/sshd_config.old
 }
 
+function diff_sshd_config {
+	if [ -f "$MOUNT/rootfs/etc/ssh/sshd_config.old" ]; then
+		diff "$MOUNT/rootfs/etc/ssh/sshd_config" "$MOUNT/rootfs/etc/ssh/sshd_config.old"
+	fi
+}
+
 function disable_passwd_auth {
 	echo "[] Disable ssh passwd auth"
 	"$PRIV" sed -e 's/#PasswordAuthentication yes/PasswordAuthentication no/' -i "$MOUNT/rootfs/etc/ssh/sshd_config"
@@ -207,4 +214,4 @@ if [ -f "$1" ]; then
 fi
 
 # comment out the following line to not execute everything when sourcing
-execute_these_steps $1
+execute_these_steps
