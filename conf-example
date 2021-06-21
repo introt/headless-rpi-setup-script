@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# shebang for syntax highlighting
+
+# A file like this gets sourced by headless-raspi-config.sh when given as an argument like so:
+# ./headless-raspi-config.sh conf-example
+
+# Here's how to override vars:
+IMG="my-custom.img"
+DISK="/dev/null" # for your safety
+# p1 and p2 with sd card
+BOOT="$DISK"p1
+ROOTFS="$DISK"p2
+MOUNT="$HOME/mnt" # I like working at home, feel free to take this outside
+PRIV=/usr/bin/sudo # if you don't use sudo, change this and/or run as root
+# wireless network settings
+COUNTRY="FI" # two letter ISO 3166-1 country code
+SSID='"example"' # keep the double quotes
+PSK="22c4b41f857d22d452604ae0c9a01d2c9c2dd9a165ae5123f2b1ddb280d163cd" # generate with wpa_passphrase $SSID $password
+# ssh key
+KEY_TYPE="rsa"
+KEY_BITS=4096
+KEY_PASSPHRASE='reallysecret'
+COMMENT="root@mainframe"
+KEY_FILE="$HOME/.ssh/custom-rpi_rsa" # private key is generated, not used here; ".pub" is appended later
+
+# Here's how to add your own functions:
+function my_function {
+	echo "Hello, World!"
+}
+
+function another_one {
+	echo "this one is called from this file's version of execute_these_steps"
+}
+
+function add_rootkit {
+	# add_rootkit is ran after other configuration and before unmounting
+	my_function
+}
+
+# Here's how to override functions:
+
+function execute_these_steps () {
+	# Yes, you can override this one too!
+
+        confirm_vars
+        set -eu
+        nuke_disk # overwrites disk with zeroes (slow)
+        write_img
+        mk_mnt
+        mount_disk
+        enable_wifi
+        enable_ssh
+        backup_default_sshd_config
+        disable_passwd_auth
+        authorize_key
+        add_rootkit || true
+	another_one
+        umount_disk
+        clean_up
+}
+
+function press_enter {
+	# override needing to confirm variables
+	true
+}
+
+function mk_mnt {
+	echo "[] mkdir mnt/{boot,rootfs}"
+}
+
+function clean_up {
+	echo "[] cleanup" 
+}
+
+function nuke_disk {
+	echo "[] nuke $DISK"
+}
+
+function write_img {
+	echo "[] writing IMG to DISK"
+}
+
+function mount_disk {
+	echo "[] mount"
+}
+
+function umount_disk {
+	echo "[] umount"
+}
+
+function enable_wifi {
+	echo "[] create wpa_supplicant.conf"
+}
+
+function enable_ssh {
+	echo "[] enable ssh"
+}
+
+function generate_keys {
+	echo "[] Generating SSH keys"
+}
+
+function backup_default_sshd_config {
+	true
+}
+
+function disable_passwd_auth {
+	echo "[] Disable ssh passwd auth"
+}
+
+function authorize_key {
+	echo "[] Adding "$KEY_FILE".pub to authorized_keys"
+}

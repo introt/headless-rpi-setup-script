@@ -50,7 +50,7 @@ KEY_PASSPHRASE=''
 COMMENT="$(whoami)@$(hostname)"
 KEY_FILE="$HOME/.ssh/hrpi_rsa" # private key is generated, not used here; ".pub" is appended later
 
-function execute_these_steps {
+function execute_these_steps () {
 	# STEPS - comment out any unneeded ones
 	#
 	# You can also comment out the last line of this file
@@ -60,8 +60,7 @@ function execute_these_steps {
 	# Optionally, you can put the above variables as well
 	# as any functions you want to add/override with your
 	# own into a file. I use this to keep my password out
-	# of my git repo. At that point you'll likely want to
-	# just make your own script though ;)
+	# of my git repo.
 	CONFIG_FILE="$HOME/.config/raspi"
 	if [ -f "$CONFIG_FILE" ]; then
 		echo "[] Sourcing variables from $CONFIG_FILE"
@@ -198,5 +197,14 @@ function authorize_key {
 	"$PRIV" chmod 600 "$MOUNT/rootfs/home/pi/.ssh/authorized_keys"
 }
 
+# If the script gets given a configuration file as an
+# argument, it is sourced before executing anything;
+# thus you can override the execute_these_steps
+# function that determines which steps are run
+if [ -f "$1" ]; then
+	echo "[] Sourcing from $1"
+	source "$1"
+fi
+
 # comment out the following line to not execute everything when sourcing
-execute_these_steps
+execute_these_steps $1
