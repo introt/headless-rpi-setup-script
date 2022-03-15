@@ -75,6 +75,7 @@ function execute_these_steps {
 	mk_mnt
 	mount_disk
 	enable_wifi
+	fix_wifi # see #2; bullseye seems to need this to reliably connect
 	enable_ssh
 	generate_keys # you can skip this- just remember to point KEY_FILE to your existing key
 	backup_default_sshd_config
@@ -167,6 +168,11 @@ network={
   ssid=$SSID
   psk=$PSK
 }" | "$PRIV" tee "$MOUNT"/boot/wpa_supplicant.conf
+}
+
+function fix_wifi {
+	echo "[] fix_wifi"
+	echo "console=serial0,115200 console=tty1 root=PARTUUID=e72b8fd1-02 rootfstype=ext4 fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh systemd.restore_state=0 rfkill.default_state=1" | "$PRIV" tee "$MOUNT"/boot/cmdline.txt
 }
 
 function enable_ssh {
