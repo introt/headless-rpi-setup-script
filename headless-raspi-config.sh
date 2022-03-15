@@ -44,8 +44,8 @@ COUNTRY="FI" # two letter ISO 3166-1 country code
 SSID='"example"' # keep the double quotes
 PSK="22c4b41f857d22d452604ae0c9a01d2c9c2dd9a165ae5123f2b1ddb280d163cd" # generate with wpa_passphrase $SSID $password
 # ssh key
-KEY_TYPE="rsa"
-KEY_BITS=4096
+KEY_TYPE="ed25519" # change to "rsa" if using some ancient version
+KEY_BITS=4096 # ignored by ed25519
 KEY_PASSPHRASE=''
 COMMENT="$(whoami)@$(hostname)"
 KEY_FILE="$HOME/.ssh/hrpi_rsa" # private key is generated, not used here; ".pub" is appended later
