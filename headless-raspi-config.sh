@@ -186,7 +186,7 @@ function backup_default_sshd_config {
 
 function diff_sshd_config {
 	if [ -f "$MOUNT/rootfs/etc/ssh/sshd_config.old" ]; then
-		diff "$MOUNT/rootfs/etc/ssh/sshd_config" "$MOUNT/rootfs/etc/ssh/sshd_config.old"
+		diff "$MOUNT/rootfs/etc/ssh/sshd_config" "$MOUNT/rootfs/etc/ssh/sshd_config.old" || true
 	fi
 }
 
