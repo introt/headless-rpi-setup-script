@@ -53,10 +53,9 @@ KEY_FILE="$HOME/.ssh/hrpi_rsa" # private key is generated, not used here; ".pub"
 function execute_these_steps {
 	# STEPS - comment out any unneeded ones
 	#
-	# You can also comment out the last line of this file
-	# and run 'source raspi-headless-config.sh' to import
-	# the functions into your shell for manual execution.
-	
+	# You can also run 'source raspi-headless-config.sh'
+	# to import the functions into your shell for manual execution.
+
 	# Optionally, you can put the above variables as well
 	# as any functions you want to add/override with your
 	# own into a file. I use this to keep my password out
@@ -204,14 +203,17 @@ function authorize_key {
 	"$PRIV" chmod 600 "$MOUNT/rootfs/home/pi/.ssh/authorized_keys"
 }
 
-# If the script gets given a configuration file as an
-# argument, it is sourced before executing anything;
-# thus you can override the execute_these_steps
-# function that determines which steps are run
-if [ -f "$1" ]; then
-	echo "[] Sourcing from $1"
-	source "$1"
-fi
+# Prevent execution when sourcing
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 
-# comment out the following line to not execute everything when sourcing
-execute_these_steps
+	# If the script gets given a configuration file as an
+	# argument, it is sourced before executing anything;
+	# thus you can override the execute_these_steps
+	# function that determines which steps are run
+	if [ -f "$1" ]; then
+		echo "[] Sourcing from $1"
+		source "$1"
+	fi
+
+	execute_these_steps
+fi
